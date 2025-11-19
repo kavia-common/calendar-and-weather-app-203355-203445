@@ -1,6 +1,6 @@
 from typing import Optional, List, Dict, Any, Union
 from datetime import datetime
-from pydantic import BaseModel, Field, validator, root_validator
+from pydantic import BaseModel, Field, validator
 
 # PUBLIC_INTERFACE
 class RecurrenceRule(BaseModel):
@@ -37,11 +37,14 @@ class EventBase(BaseModel):
     reminders: Optional[List[int]] = Field(default_factory=list, description="List of reminders in minutes before event")
 
 
-    @root_validator
-    def check_times(cls, values):
-        start = values.get('start_time')
-        end = values.get('end_time')
-        tz = values.get('timezone')
+    # Pydantic v2.x pattern: use @model_validator instead of @root_validator
+    from pydantic import model_validator
+
+    @model_validator(mode="after")
+    def check_times(self):
+        start = self.start_time
+        end = self.end_time
+        tz = self.timezone
         if end is not None and start is not None:
             if end <= start:
                 raise ValueError("end_time must be after start_time")
@@ -56,7 +59,7 @@ class EventBase(BaseModel):
                 pytz.timezone(tz)
             except Exception:
                 raise ValueError(f"{tz} is not a valid timezone string")
-        return values
+        return self
 
     @validator('reminders', each_item=True)
     def non_negative_reminder(cls, v):
