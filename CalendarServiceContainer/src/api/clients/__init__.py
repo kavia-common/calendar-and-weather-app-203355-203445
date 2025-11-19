@@ -1,4 +1,4 @@
 # Clients package (weather, notification stubs)
-from ..clients import WeatherClient, NotificationClient
+from src.api.clients import WeatherClient, NotificationClient
 
 __all__ = ["WeatherClient", "NotificationClient"]

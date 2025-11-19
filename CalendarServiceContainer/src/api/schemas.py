@@ -97,12 +97,19 @@ class EventRead(EventBase):
     updated_at: datetime
     weather_context: Optional[Dict[str, Any]] = None
 
-    class Config:
-        from_attributes = True
+    # Pydantic v2: Use from_attributes=True, not orm_mode
+    model_config = {
+        "from_attributes": True
+    }
 
 class PaginatedEventResponse(BaseModel):
     total: int
     items: List[EventRead]
+
+    # Pydantic v2: Use from_attributes=True, not orm_mode
+    model_config = {
+        "from_attributes": True
+    }
 
 class EventFilterParams(BaseModel):
     user_id: Optional[str]
@@ -111,3 +118,8 @@ class EventFilterParams(BaseModel):
     page: Optional[int] = 1
     page_size: Optional[int] = 20
     include_weather: Optional[bool] = False
+
+    # Pydantic v2: Use from_attributes=True, not orm_mode
+    model_config = {
+        "from_attributes": True
+    }
