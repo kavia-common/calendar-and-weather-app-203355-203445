@@ -1,7 +1,6 @@
 from typing import Optional, List, Dict, Any, Union
 from datetime import datetime
 from pydantic import BaseModel, Field, validator, root_validator
-import pytz
 
 # PUBLIC_INTERFACE
 class RecurrenceRule(BaseModel):
@@ -47,6 +46,12 @@ class EventBase(BaseModel):
             if end <= start:
                 raise ValueError("end_time must be after start_time")
         if tz:
+            try:
+                import pytz
+            except ImportError:
+                raise RuntimeError(
+                    "pytz is required for timezone validation. Please ensure it is installed."
+                )
             try:
                 pytz.timezone(tz)
             except Exception:
