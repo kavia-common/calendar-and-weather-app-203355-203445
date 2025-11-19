@@ -19,7 +19,7 @@ See README.md for details.
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import events
+from .routers import events  # Only import routers; do not import from clients here.
 from .repositories import get_repository
 from datetime import datetime, timedelta
 from uuid import uuid4

@@ -1,6 +1,5 @@
 # Clients package (weather, notification stubs)
 # PUBLIC_INTERFACE
-# Avoid importing anything that triggers recursive app/module imports!
-from ..clients import WeatherClient, NotificationClient
+# Do not import submodules here; only declare __all__ for static analysis/completion.
 
 __all__ = ["WeatherClient", "NotificationClient"]

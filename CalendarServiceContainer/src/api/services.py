@@ -1,7 +1,7 @@
 from typing import List
 from datetime import datetime, timedelta
 from .models import EventModel
-from .clients import NotificationClient
+from .clients import NotificationClient  # Direct import from clients.py avoids recursion
 
 # PUBLIC_INTERFACE
 def expand_event_recurrence(event: EventModel, range_start: datetime, range_end: datetime) -> List[EventModel]:

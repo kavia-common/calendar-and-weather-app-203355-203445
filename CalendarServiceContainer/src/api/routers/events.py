@@ -10,7 +10,7 @@ from ..schemas import (
 )
 from ..models import EventModel
 from ..repositories import get_repository, Repository
-from ..clients import WeatherClient, NotificationClient  # <-- only direct import from clients.py
+from ..clients import WeatherClient, NotificationClient  # Direct import from clients.py (not clients/__init__.py)
 from ..services import expand_event_recurrence, schedule_event_reminders
 
 router = APIRouter(prefix="/events", tags=["Events"])
