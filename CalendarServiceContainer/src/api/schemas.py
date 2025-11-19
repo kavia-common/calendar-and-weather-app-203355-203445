@@ -1,6 +1,6 @@
 from typing import Optional, List, Dict, Any, Union
 from datetime import datetime
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 # PUBLIC_INTERFACE
 class RecurrenceRule(BaseModel):
@@ -9,19 +9,20 @@ class RecurrenceRule(BaseModel):
     byweekday: Optional[List[int]] = Field(None, description="List of weekdays [0=Monday, ...] (for WEEKLY)")
     until: Optional[datetime] = Field(None, description="Recurrence ends at this datetime")
 
-    @validator('freq')
+    @field_validator('freq')
+    @classmethod
     def freq_must_be_known(cls, v):
         allowed = {"DAILY", "WEEKLY", "NONE"}
         if v not in allowed:
             raise ValueError(f"Invalid frequency: {v}")
         return v
 
-    @validator('interval')
+    @field_validator('interval')
+    @classmethod
     def interval_positive(cls, v):
         if v is not None and v < 1:
             raise ValueError("interval must be >= 1")
         return v
-
 
 class EventBase(BaseModel):
     title: str = Field(..., description="Title of the event")
@@ -35,10 +36,6 @@ class EventBase(BaseModel):
         None, description="Recurrence rule, RRULE string, or dict"
     )
     reminders: Optional[List[int]] = Field(default_factory=list, description="List of reminders in minutes before event")
-
-
-    # Pydantic v2.x pattern: use @model_validator instead of @root_validator
-    from pydantic import model_validator
 
     @model_validator(mode="after")
     def check_times(self):
@@ -61,10 +58,18 @@ class EventBase(BaseModel):
                 raise ValueError(f"{tz} is not a valid timezone string")
         return self
 
-    @validator('reminders', each_item=True)
+    @field_validator('reminders', mode='before')
+    @classmethod
     def non_negative_reminder(cls, v):
-        if v is not None and v < 0:
-            raise ValueError("Reminders must be >= 0 (minutes before event)")
+        # This is a before validator for the entire field (list of ints).
+        if v is None:
+            return []
+        # Pydantic v2: in 'before' mode, v may still be e.g. None or not coercible, so handle both list/None
+        if not isinstance(v, list):
+            raise TypeError("reminders must be a list of non-negative integers")
+        for item in v:
+            if item is not None and item < 0:
+                raise ValueError("Reminders must be >= 0 (minutes before event)")
         return v
 
 # PUBLIC_INTERFACE
@@ -96,11 +101,9 @@ class EventRead(EventBase):
     class Config:
         orm_mode = True
 
-
 class PaginatedEventResponse(BaseModel):
     total: int
     items: List[EventRead]
-
 
 class EventFilterParams(BaseModel):
     user_id: Optional[str]
