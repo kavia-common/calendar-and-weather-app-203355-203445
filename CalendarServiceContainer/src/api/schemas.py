@@ -98,7 +98,7 @@ class EventRead(EventBase):
     weather_context: Optional[Dict[str, Any]] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class PaginatedEventResponse(BaseModel):
     total: int
