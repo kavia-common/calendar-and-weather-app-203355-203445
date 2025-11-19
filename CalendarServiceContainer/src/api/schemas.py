@@ -64,7 +64,6 @@ class EventBase(BaseModel):
         # This is a before validator for the entire field (list of ints).
         if v is None:
             return []
-        # Pydantic v2: in 'before' mode, v may still be e.g. None or not coercible, so handle both list/None
         if not isinstance(v, list):
             raise TypeError("reminders must be a list of non-negative integers")
         for item in v:
